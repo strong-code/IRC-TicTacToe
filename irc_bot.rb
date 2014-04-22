@@ -4,6 +4,7 @@ require_relative 'ttt.rb'
 class CheckersBot
 
   attr_reader :nick, :chan, :in_game
+  attr_accessor :in_game
 
   def initialize(nick, chan)
     @nick = nick
@@ -29,17 +30,19 @@ class CheckersBot
   end
 
   def handle_msg(msg)
-    text = msg.last[1..-1]
+    text = msg[3..-1].join(" ")[1..-1]
 
     if text == "!start game"
       new_game()
+      self.in_game = true
     elsif self.in_game
       case text
       when /^\!vote\s(\d,\d)/
         return if !@game.registered_player?(msg[0])
         @game.record_vote(msg[0], /^\!vote\s(\d,\d)/.match(text)[1])
       when /^\!join\s(o|x)/
-        #add player to team
+        return if @game.registered_player?(msg[0])
+        @game.add_player(msg[0], /^\!join\s(o|x)/.match(text)[1])
       end
     end
 
@@ -75,5 +78,5 @@ class CheckersBot
 
 end
 
-bot = CheckersBot.new("CheckersBot", "/g/sicp")
+bot = CheckersBot.new("CheckersBot", "testchan")
 bot.run("irc.rizon.net", 6667)

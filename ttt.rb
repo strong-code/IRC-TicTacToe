@@ -6,12 +6,12 @@ class TicTacToe
     @board = build_board
   end
 
-  def self.registered_player?(nick)
+  def registered_player?(nick)
     return true if @team1.players.include?(nick) || @team2.players.include?(nick)
     false
   end
 
-  def self.build_board
+  def build_board
     [
       ["-", "-", "-"],
       ["-", "-", "-"],
@@ -19,8 +19,14 @@ class TicTacToe
     ]
   end
 
-  def record_vote(nick, pos)
+  def add_player(nick, mark)
+    mark = "x" ? @team1.players << nick : @team2.players << nick
+    puts "#{nick} added to team #{mark}"
+  end
 
+  def record_vote(nick, pos)
+    puts nick
+    puts pos
   end
 
   def self.place_mark!(pos, mark)
@@ -59,16 +65,13 @@ end
 
 class Team
 
-  attr_reader :players, :mark, :move_votes
+  attr_reader :mark, :move_votes
+  attr_accessor :players
 
   def initialize(mark)
     @mark = mark
     @players = []
     @move_votes = {}
-  end
-
-  def add_player(nick)
-    self.players << nick
   end
 
   def add_vote(pos)
