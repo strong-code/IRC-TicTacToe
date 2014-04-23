@@ -10,6 +10,7 @@ class CheckersBot
     @nick = nick
     @chan = chan
     @in_game = false
+    @voting_open = false
   end
 
   def say(str)
@@ -48,10 +49,17 @@ class CheckersBot
 
   end
 
-  def new_game()
+  def new_game
     @game = TicTacToe.new()
-    say_to_chan("New game started! Type !join <x|o> to join a team and !vote [x,y] to vote for a move")
-    #
+    say_to_chan("New game started! Type `!join x|o` to join a team and `!vote x,y` to vote for a move")
+    start_timer
+  end
+
+  def start_timer
+    Thread.new do
+      sleep 9
+      @game.make_popular_move!
+    end
   end
 
   def run(host, port)

@@ -6,8 +6,8 @@ class TicTacToe
     @team1 = Team.new(:x)
     @team2 = Team.new(:o)
     @board = build_board
-    @last_round = Time.now()
     @game_players = {}
+    @turn = @team1
   end
 
   def build_board
@@ -18,30 +18,53 @@ class TicTacToe
     ]
   end
 
-  def add_player(nick, mark)
-    if mark == "x"
-      @team1.players << nick
-      @game_players[nick] == "x"
-    else
-      @team12.players << nick
-      @game_players[nick] == "o"
+  def print_board
+    @board.each do |row|
+      row.each do |cell|
+        print "#{cell} "
+      end
+      puts
     end
   end
 
+  def add_player(nick, mark)
+    player = (mark == "x" ? Player.new(nick, @team1) : Player.new(nick, @team2))
+    @game_players[player] = false
+  end
+
   def registered_player?(nick)
-    @team1.players.include?(nick) || @team2.players.include?(nick)
+    @game_players.keys.each do |player|
+      return true if player.nick == nick
+    end
+    false
+  end
+
+  def get_player(nick)
+    @game_players.keys.each {|p| return p if p.nick == nick}
+    nil
   end
 
   def record_vote(nick, pos)
     pos = [pos[0].to_i, pos[2].to_i]
-    mark = @game_players[nick]
+    player = get_player(nick)
+    team = player.team
 
     return if !valid_move?(pos)
-    place_mark!(pos, mark)
+    return if player.move
+    team.add_vote(pos)
+    player.move = pos
+    puts "vote recorded!"
+  end
+
+  def make_popular_move!
+    move = @turn.move_votes.sort_by{|k,v| v}.reverse.first
+    place_mark!(move[0], @turn.mark)
+    @turn = (@turn == @team1 ? @team2 : @team1)
   end
 
   def place_mark!(pos, mark)
     @board[pos.first][pos.last] = mark
+    print_board
   end
 
   def valid_move?(pos)
@@ -82,7 +105,7 @@ class Team
 
   def initialize(mark)
     @mark = mark
-    @players = []
+    @players = {}
     @move_votes = {}
   end
 
@@ -92,6 +115,18 @@ class Team
     else
       @move_votes[pos] = 1
     end
+  end
+
+end
+
+class Player
+
+  attr_accessor :nick, :team, :move
+
+  def initialize(nick, team)
+    @nick = nick
+    @team = team
+    @move = nil
   end
 
 end
