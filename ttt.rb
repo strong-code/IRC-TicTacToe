@@ -1,14 +1,13 @@
+require 'time'
+
 class TicTacToe
 
   def initialize
     @team1 = Team.new(:x)
     @team2 = Team.new(:o)
     @board = build_board
-  end
-
-  def registered_player?(nick)
-    return true if @team1.players.include?(nick) || @team2.players.include?(nick)
-    false
+    @last_round = Time.now()
+    @game_players = {}
   end
 
   def build_board
@@ -20,26 +19,39 @@ class TicTacToe
   end
 
   def add_player(nick, mark)
-    mark = "x" ? @team1.players << nick : @team2.players << nick
-    puts "#{nick} added to team #{mark}"
+    if mark == "x"
+      @team1.players << nick
+      @game_players[nick] == "x"
+    else
+      @team12.players << nick
+      @game_players[nick] == "o"
+    end
+  end
+
+  def registered_player?(nick)
+    @team1.players.include?(nick) || @team2.players.include?(nick)
   end
 
   def record_vote(nick, pos)
-    puts nick
-    puts pos
+    pos = [pos[0].to_i, pos[2].to_i]
+    mark = @game_players[nick]
+
+    return if !valid_move?(pos)
+    place_mark!(pos, mark)
   end
 
-  def self.place_mark!(pos, mark)
-    self.board[pos1, pos2] = mark if valid_move?(pos)
+  def place_mark!(pos, mark)
+    @board[pos.first][pos.last] = mark
   end
 
   def valid_move?(pos)
-    return true if self.board[pos1, pos2] == "-"
+    return if @board[pos.first].nil? || @board[pos.last].nil?
+    return true if @board[pos.first][pos.last] == "-"
     false
   end
 
   def game_won?
-    self.board.each do |row|
+    @board.each do |row|
       row.each do |cell|
         return false if cell == "-"
       end
@@ -75,10 +87,10 @@ class Team
   end
 
   def add_vote(pos)
-    if self.move_votes[pos]
-      self.move_votes[pos] += 1
+    if @move_votes[pos]
+      @move_votes[pos] += 1
     else
-      self.move_votes[pos] = 1
+      @move_votes[pos] = 1
     end
   end
 

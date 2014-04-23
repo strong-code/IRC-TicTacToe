@@ -37,12 +37,12 @@ class CheckersBot
       self.in_game = true
     elsif self.in_game
       case text
-      when /^\!vote\s(\d,\d)/
+      when /^\!vote\s(\d,\d)$/
         return if !@game.registered_player?(msg[0])
         @game.record_vote(msg[0], /^\!vote\s(\d,\d)/.match(text)[1])
-      when /^\!join\s(o|x)/
+      when /^\!join\s(o|x)$/
         return if @game.registered_player?(msg[0])
-        @game.add_player(msg[0], /^\!join\s(o|x)/.match(text)[1])
+        @game.add_player(msg[0], text[-1])
       end
     end
 
@@ -78,5 +78,5 @@ class CheckersBot
 
 end
 
-bot = CheckersBot.new("CheckersBot", "testchan")
+bot = CheckersBot.new("TicTacToeBot", "testchan")
 bot.run("irc.rizon.net", 6667)
