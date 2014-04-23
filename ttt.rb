@@ -46,12 +46,12 @@ class TicTacToe
 
   def record_vote(nick, pos)
     pos = [pos[0].to_i, pos[2].to_i]
-    player = get_player(nick)
-    team = player.team
-
     return if !valid_move?(pos)
+
+    player = get_player(nick)
     return if player.move
-    team.add_vote(pos)
+
+    player.team.add_vote(pos)
     player.move = pos
     puts "vote recorded!"
   end
@@ -85,15 +85,30 @@ class TicTacToe
   end
 
   def vertical_win?
-    #
+    cols = []
+    (0..2).each do |i|
+      cols << [@board[0][i], @board[1][i], @board[2][i]]
+    end
+    cols.any?{|col| all_values_equal?(col)}
   end
 
   def horizontal_win?
-    #
+    @board.rows.any?{|row| all_values_equal?(row))}
   end
 
   def diag_win?
-    #
+    diags = [ [@board[0][0], @board[1][1], @board[2][2]], 
+              [@board[0][2], @board[1][1], @board[2][0]] ]
+
+    diags.any?{|arr| all_values_equal?(arr)}
+  end
+
+  def all_values_equal?(array)
+    init_val = array[0]
+    (1..array.length-1).each do |i|
+      return false if i != init_val
+    end
+    false
   end
 
 end
