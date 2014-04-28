@@ -29,6 +29,18 @@ class TicTacToe
     end
   end
 
+  def print_board_to_file
+    File.open('board.txt', 'w') do |f|
+      @board.each do |row|
+        row.each do |cell|
+          f.write("#{cell} ")
+        end
+        f.write("\n")
+      end
+    end
+    p current_board_url = `cat board.txt | curl -F 'sprunge=<-' http://sprunge.us`
+  end
+
   def add_player(nick, mark)
     player = (mark == "x" ? Player.new(nick, @team1) : Player.new(nick, @team2))
     @game_players[player] = false
@@ -80,7 +92,7 @@ class TicTacToe
   def place_mark!(pos)
     @board[pos.first][pos.last] = @turn.mark
     @turn.move_votes.clear
-    print_board
+    print_board_to_file
   end
 
   def valid_move?(pos)
