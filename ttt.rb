@@ -2,9 +2,11 @@ require 'time'
 
 class TicTacToe
 
+  attr_reader :turn
+
   def initialize
-    @team1 = Team.new(:x)
-    @team2 = Team.new(:o)
+    @team1 = Team.new("x")
+    @team2 = Team.new("o")
     @board = build_board
     @game_players = {}
     @turn = @team1
@@ -13,8 +15,8 @@ class TicTacToe
   def build_board
     [
       ["-", "-", "-"],
-      ["-", "-", "-"],
-      ["-", "-", "-"]
+      ["x", "-", "-"],
+      ["x", "-", "-"]
     ]
   end
 
@@ -39,6 +41,11 @@ class TicTacToe
     false
   end
 
+  def not_enough_players?
+    return true if @team1.players == {} || @team2.players == {}
+    false
+  end
+
   def get_player(nick)
     @game_players.keys.each {|p| return p if p.nick == nick}
     nil
@@ -57,30 +64,36 @@ class TicTacToe
   end
 
   def make_popular_move!
+    return make_random_move! if @turn.move_votes.empty?
     move = @turn.move_votes.sort_by{|k,v| v}.reverse.first
-    place_mark!(move[0], @turn.mark)
-    @turn = (@turn == @team1 ? @team2 : @team1)
+    place_mark!(move[0])
   end
 
-  def place_mark!(pos, mark)
-    @board[pos.first][pos.last] = mark
+  def make_random_move!
+    move = [Random.rand(3), Random.rand(3)]
+    until valid_move?(move)
+      move[0], move[1] = Random.rand(3), Random.rand(3)
+    end
+    place_mark!(move)
+  end
+
+  def place_mark!(pos)
+    @board[pos.first][pos.last] = @turn.mark
+    @turn.move_votes.clear
     print_board
   end
 
   def valid_move?(pos)
-    return if @board[pos.first].nil? || @board[pos.last].nil?
     return true if @board[pos.first][pos.last] == "-"
     false
   end
 
-  def game_won?
-    @board.each do |row|
-      row.each do |cell|
-        return false if cell == "-"
-      end
+  def won?
+    if (vertical_win? || horizontal_win? || diag_win?)
+      end_game
+      return true
     end
-
-    return true if vertical_win? || horizontal_win? || diag_win?
+    @turn = (@turn == @team1 ? @team2 : @team1)
     false
   end
 
@@ -93,7 +106,7 @@ class TicTacToe
   end
 
   def horizontal_win?
-    @board.rows.any?{|row| all_values_equal?(row))}
+    @board.each.any?{|row| all_values_equal?(row)}
   end
 
   def diag_win?
@@ -104,11 +117,15 @@ class TicTacToe
   end
 
   def all_values_equal?(array)
-    init_val = array[0]
-    (1..array.length-1).each do |i|
-      return false if i != init_val
-    end
+    return true if array.all?{|i| i.eql?(@turn.mark)}
     false
+  end
+
+  def end_game
+    @team1.players.clear
+    @team1.move_votes.clear
+    @team2.players.clear
+    @team2.move_votes.clear
   end
 
 end

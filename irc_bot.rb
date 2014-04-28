@@ -39,11 +39,13 @@ class CheckersBot
     elsif self.in_game
       case text
       when /^\!vote\s(\d,\d)$/
-        return if !@game.registered_player?(msg[0])
+        return if !@game.registered_player?(msg[0]) || !@voting_open
         @game.record_vote(msg[0], /^\!vote\s(\d,\d)/.match(text)[1])
       when /^\!join\s(o|x)$/
         return if @game.registered_player?(msg[0])
         @game.add_player(msg[0], text[-1])
+        nick = /^:(.+)\!/.match(msg[0])[1]
+        say_to_chan("Added #{nick} to team #{text[-1]}!")
       end
     end
 
@@ -52,13 +54,21 @@ class CheckersBot
   def new_game
     @game = TicTacToe.new()
     say_to_chan("New game started! Type `!join x|o` to join a team and `!vote x,y` to vote for a move")
-    start_timer
+    play_next_turn
   end
 
-  def start_timer
-    Thread.new do
-      sleep 9
+  def play_next_turn(count = 3)
+    say_to_chan("\x02Team #{@game.turn.mark.upcase}'s\x02 turn! You have #{count} seconds to cast a vote.")
+    @voting_open = true
+
+    t = Thread.new do
+      sleep count
       @game.make_popular_move!
+      if @game.won?
+        return say_to_chan("Game over, \x02Team #{@game.turn.mark.upcase} wins!\x02")
+      end
+      @voting_open = false
+      play_next_turn
     end
   end
 
