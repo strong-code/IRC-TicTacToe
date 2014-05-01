@@ -57,7 +57,8 @@ class CheckersBot
     play_next_turn
   end
 
-  def play_next_turn(count = 3)
+  def play_next_turn(count = 30)
+    say_to_chan("Board: #{@game.board_url}") if @game.board_url
     say_to_chan("\x02Team #{@game.turn.mark.upcase}'s\x02 turn! You have #{count} seconds to cast a vote.")
     @voting_open = true
 
@@ -65,7 +66,7 @@ class CheckersBot
       sleep count
       @game.make_popular_move!
       if @game.won?
-        return say_to_chan("Game over, \x02Team #{@game.turn.mark.upcase} wins!\x02")
+        return say_to_chan("Game over, \x02Team #{@game.turn.mark.upcase} wins!\x02. Board: #{@game.board_url}")
       end
       @voting_open = false
       play_next_turn

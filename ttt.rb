@@ -2,7 +2,7 @@ require 'time'
 
 class TicTacToe
 
-  attr_reader :turn
+  attr_reader :turn, :board_url
 
   def initialize
     @team1 = Team.new("x")
@@ -10,6 +10,7 @@ class TicTacToe
     @board = build_board
     @game_players = {}
     @turn = @team1
+    @board_url
   end
 
   def build_board
@@ -38,7 +39,7 @@ class TicTacToe
         f.write("\n")
       end
     end
-    p current_board_url = `cat board.txt | curl -F 'sprunge=<-' http://sprunge.us`
+    @board_url = `cat board.txt | curl -F 'sprunge=<-' http://sprunge.us`
   end
 
   def add_player(nick, mark)
