@@ -16,8 +16,8 @@ class TicTacToe
   def build_board
     [
       ["-", "-", "-"],
-      ["x", "-", "-"],
-      ["x", "-", "-"]
+      ["-", "-", "-"],
+      ["-", "-", "-"]
     ]
   end
 
@@ -93,6 +93,7 @@ class TicTacToe
   def place_mark!(pos)
     @board[pos.first][pos.last] = @turn.mark
     @turn.move_votes.clear
+    @turn.players.each {|p| p.move = nil}
     print_board_to_file
   end
 

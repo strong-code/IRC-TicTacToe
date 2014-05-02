@@ -38,6 +38,9 @@ class CheckersBot
       self.in_game = true
     elsif self.in_game
       case text
+      when "!board"
+        return if !@game.registered_player?(msg[0])
+        say_to_chan("Board: #{@game.board_url}")
       when /^\!vote\s(\d,\d)$/
         return if !@game.registered_player?(msg[0]) || !@voting_open
         @game.record_vote(msg[0], /^\!vote\s(\d,\d)/.match(text)[1])
@@ -97,5 +100,5 @@ class CheckersBot
 
 end
 
-bot = CheckersBot.new("TicTacToeBot", "testchan")
+bot = CheckersBot.new("TicTacToeBot", "pleb")
 bot.run("irc.rizon.net", 6667)
