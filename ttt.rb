@@ -92,7 +92,7 @@ class TicTacToe
   def place_mark!(pos)
     @board[pos.first][pos.last] = @turn.mark
     @turn.move_votes.clear
-    @turn.players.each_value {|move| move = nil}
+    @turn.players.each {|k,v| @turn.players[k] = nil}
     print_board_to_file
   end
 
@@ -108,6 +108,15 @@ class TicTacToe
     end
     @turn = (@turn == @team1 ? @team2 : @team1)
     false
+  end
+
+  def stalemate?
+    @board.each do |row|
+      row.each do |cell|
+        return false if cell == "-"
+      end
+    end
+    true
   end
 
   def vertical_win?

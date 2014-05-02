@@ -68,6 +68,9 @@ class CheckersBot
     t = Thread.new do
       sleep count
       @game.make_popular_move!
+      if @game.stalemate?
+        return say_to_chan("Stalemate! Board: #{@game.board_url}")
+      end
       if @game.won?
         return say_to_chan("Game over, \x02Team #{@game.turn.mark.upcase} wins!\x02. Board: #{@game.board_url}")
       end
@@ -100,5 +103,5 @@ class CheckersBot
 
 end
 
-bot = CheckersBot.new("TicTacToeBot", "testchan")
+bot = CheckersBot.new("TicTacToeBot", "lifting")
 bot.run("irc.rizon.net", 6667)
