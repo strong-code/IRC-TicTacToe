@@ -8,7 +8,6 @@ class TicTacToe
     @team1 = Team.new("x")
     @team2 = Team.new("o")
     @board = build_board
-    @game_players = {}
     @turn = @team1
     @board_url
   end
@@ -43,15 +42,12 @@ class TicTacToe
   end
 
   def add_player(nick, mark)
-    player = (mark == "x" ? Player.new(nick, @team1) : Player.new(nick, @team2))
-    @game_players[player] = false
+    player = Player.new(nick)
+    mark == "x" ? @team1.players[player] = nil : @team2.players[player] = nil
   end
 
   def registered_player?(nick)
-    @game_players.keys.each do |player|
-      return true if player.nick == nick
-    end
-    false
+    return true if get_player(nick)
   end
 
   def not_enough_players?
@@ -60,7 +56,8 @@ class TicTacToe
   end
 
   def get_player(nick)
-    @game_players.keys.each {|p| return p if p.nick == nick}
+    @team1.players.keys.each {|p| return p if p.nick == nick}
+    @team2.players.keys.each {|p| return p if p.nick == nick}
     nil
   end
 
@@ -69,11 +66,13 @@ class TicTacToe
     return if !valid_move?(pos)
 
     player = get_player(nick)
-    return if player.move
+    return if @turn.players[player] != nil
 
-    player.team.add_vote(pos)
-    player.move = pos
-    puts "vote recorded!"
+    if @turn.players.keys.include?(player)
+      @turn.add_vote(pos)
+      @turn.players[player] = pos
+      puts "vote recorded!"
+    end
   end
 
   def make_popular_move!
@@ -93,7 +92,7 @@ class TicTacToe
   def place_mark!(pos)
     @board[pos.first][pos.last] = @turn.mark
     @turn.move_votes.clear
-    @turn.players.each {|p| p.move = nil}
+    @turn.players.each_value {|move| move = nil}
     print_board_to_file
   end
 
@@ -167,12 +166,10 @@ end
 
 class Player
 
-  attr_accessor :nick, :team, :move
+  attr_accessor :nick
 
-  def initialize(nick, team)
+  def initialize(nick)
     @nick = nick
-    @team = team
-    @move = nil
   end
 
 end

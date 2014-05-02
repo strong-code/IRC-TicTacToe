@@ -60,7 +60,7 @@ class CheckersBot
     play_next_turn
   end
 
-  def play_next_turn(count = 30)
+  def play_next_turn(count = 9)
     say_to_chan("Board: #{@game.board_url}") if @game.board_url
     say_to_chan("\x02Team #{@game.turn.mark.upcase}'s\x02 turn! You have #{count} seconds to cast a vote.")
     @voting_open = true
@@ -100,5 +100,5 @@ class CheckersBot
 
 end
 
-bot = CheckersBot.new("TicTacToeBot", "pleb")
+bot = CheckersBot.new("TicTacToeBot", "testchan")
 bot.run("irc.rizon.net", 6667)
